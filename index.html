@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Falling Block 1.1.0</title>
+    <link rel="icon" href="icon.ico" type="image/x-icon">
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        background-color: #f0f0f0;
+        text-align: center;
+        font-family: Arial, sans-serif;
+      }
+
+      canvas {
+        display: block;
+        margin: 0 auto;
+      }
+
+      button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 6px 12px;
+        background-color: #ff4444;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <button onclick="Neutralino.app.exit()">Close Game</button>
+    <h1>Falling Block</h1>
+    <p>Created by Lawson Parker and Evan Hoctor</p>
+    <p>Use left & right to move. Hold shift for precise movement. Esc/P to pause.</p>
+    <script src="https://cdn.jsdelivr.net/npm/@neutralinojs/lib@latest/dist/neutralino.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.min.js"></script>
+    <script src="sketch.js"></script>
+  </body>
+</html>
