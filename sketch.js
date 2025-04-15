@@ -1,4 +1,4 @@
-// RELEASE - 1.1.0
+// RELEASE - 1.1.1
 var playerX = 200;
 var playerY = 350;
 var playerSpeed = 5;
@@ -23,6 +23,7 @@ var slowUnlocked = false;
 var slowUnlockTime = null;
 var highScore = 0;
 var isPaused = false;
+var highScoreCount = true;
 
 
 
@@ -74,6 +75,7 @@ function draw() {
   
   if (keyIsDown(73) && keyIsDown(78)){
     isInvincible = true;
+    highScoreCount = false;
   } else {
     isInvincible = false;
   }
@@ -197,7 +199,7 @@ function gameOver() {
   gameOverFlag = true;
   playerColor = [255, 255, 255];
   slowUnlocked = false;
-    if (score > highScore) {
+    if ((score > highScore) && highScoreCount) {
     highScore = score;
   }
   drawGameOverText();
@@ -248,5 +250,6 @@ function resetGame() {
   slowStartTime = 0;
   cooldownStartTime = 0;
   slowUnlockTime = null;
+  highScoreCount = true;
   loop();
 }
