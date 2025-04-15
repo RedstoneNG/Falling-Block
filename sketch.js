@@ -1,4 +1,4 @@
-// PRERELEASE - 1.1.0
+// RELEASE - 1.1.0
 var playerX = 200;
 var playerY = 350;
 var playerSpeed = 5;
