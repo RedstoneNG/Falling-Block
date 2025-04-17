@@ -264,7 +264,7 @@ async function getWorldRecord() {
 }
 
 async function updateWorldRecord(score) {
-  const token = 'ghp_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';
+  const token = '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';
   const repo = 'RedstoneNG/Falling-Block-WR';
   const path = 'wr.json';
   const url = `https://api.github.com/repos/${repo}/contents/${path}`;
@@ -273,30 +273,38 @@ async function updateWorldRecord(score) {
     highScore: score
   };
 
-  const getRes = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token}`
+  try {
+    const getRes = await fetch(url, {
+      headers: {
+        Authorization: `token ${token}`
+      }
+    });
+
+    if (!getRes.ok) {
+      throw new Error(`GET failed: ${await getRes.text()}`);
     }
-  });
 
-  const { sha } = await getRes.json();
+    const { sha } = await getRes.json();
 
-  const putRes = await fetch(url, {
-    method: "PUT",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      message: `New WR: ${score}`,
-      content: btoa(JSON.stringify(newData, null, 2)),
-      sha
-    })
-  });
+    const putRes = await fetch(url, {
+      method: "PUT",
+      headers: {
+        Authorization: `token ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: `New WR: ${score}`,
+        content: btoa(unescape(encodeURIComponent(JSON.stringify(newData, null, 2)))), // safely encode
+        sha
+      })
+    });
 
-  if (putRes.ok) {
-    console.log("✅ WR updated");
-  } else {
-    console.error("❌ WR update failed:", await putRes.text());
+    if (putRes.ok) {
+      console.log("✅ WR updated");
+    } else {
+      console.error("❌ WR update failed:", await putRes.text());
+    }
+  } catch (err) {
+    console.error("⚠️ Error during WR update:", err);
   }
 }
