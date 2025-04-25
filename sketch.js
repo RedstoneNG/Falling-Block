@@ -1,4 +1,4 @@
-// RELEASE - 1.1.1
+// RELEASE - 1.1.2
 var playerX = 200;
 var playerY = 350;
 var playerSpeed = 5;
@@ -25,8 +25,12 @@ var highScore = 0;
 var isPaused = false;
 var highScoreCount = true;
 
+var waitingToStart = true;
 
-
+function startGame() {
+  waitingToStart = false;
+  document.getElementById('startBtn').style.display = 'none';
+}
 
 function setup() {
   createCanvas(400, 400);
@@ -36,15 +40,22 @@ function setup() {
 }
 
 function draw() {
+  if (waitingToStart) {
+    background(220);
+    fill(0);
+    textSize(24);
+    text("Click the Start button to begin!", width / 2, height / 2);
+    return;
+  }
+  textSize(18);
   if (!gameRunning) return;
   if (isPaused) {
-  fill(0, 0, 0, 150);
-  rect(0, 0, width, height);
-  fill(255);
-  text("PAUSED", width / 2, height / 2);
-  return;
+    fill(0, 0, 0, 150);
+    rect(0, 0, width, height);
+    fill(255);
+    text("PAUSED", width / 2, height / 2);
+    return;
   }
-
 
   background(220);
 
@@ -72,21 +83,15 @@ function draw() {
     obstacleColor = color(random(30, 225), random(30, 225), random(30, 225));
     lastColorChangeScore = score;
   }
-  
-  if (keyIsDown(73) && keyIsDown(78)){
+
+  if (keyIsDown(73) && keyIsDown(78)) {
     isInvincible = true;
     highScoreCount = false;
   } else {
     isInvincible = false;
   }
 
-var currentSpeed = playerSpeed;
-  if (keyIsDown(16)) {
-    currentSpeed = playerSpeed / 2;
-  } else {
-    currentSpeed = playerSpeed
-  }
-
+  var currentSpeed = keyIsDown(16) ? playerSpeed / 2 : playerSpeed;
   var currentObstacleSpeed = obstacleSpeed;
 
   if (keyIsDown(38) || keyIsDown(87)) {
@@ -106,7 +111,7 @@ var currentSpeed = playerSpeed;
     slowCooldown = false;
   }
 
-  if (keyIsDown(LEFT_ARROW) || keyIsDown (65)) {
+  if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) {
     playerX -= currentSpeed;
   }
   if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) {
@@ -143,7 +148,6 @@ var currentSpeed = playerSpeed;
     text("Score: " + score, width / 2, 30);
     text("High Score: " + highScore, width / 2, 50);
   }
-  
 
   if (slowCooldown) {
     fill(0);
@@ -157,24 +161,23 @@ var currentSpeed = playerSpeed;
 
   fill(isInvincible ? [255, 255, 0] : playerColor);
   ellipse(playerX, playerY, playerSize, playerSize);
-  
-    if (keyIsDown(38) || keyIsDown (87)) {
+
+  if (keyIsDown(38) || keyIsDown(87)) {
     fill(0, 0, 0);
     text("TURBO MODE!", width / 2, 70);
   }
-  
-    if (score >= 100 && slowUnlockTime === null) {
+
+  if (score >= 100 && slowUnlockTime === null) {
     slowUnlockTime = millis();
     slowUnlocked = true;
   }
 
   if (slowUnlockTime !== null && millis() - slowUnlockTime < 5000) {
     fill(0, 128, 255);
-    text("Slowmode unlocked:" + "\n" + "Press ↓ or S for 5s slow (25s cooldown)", width / 2, playerY + 30);
+    text("Slowmode unlocked:\nPress ↓ or S for 5s slow (25s cooldown)", width / 2, playerY + 30);
   }
 
-
-  if ((keyCode === 40 || keyCode === 83)&& !slowActive && !slowCooldown && slowUnlocked) {
+  if ((keyCode === 40 || keyCode === 83) && !slowActive && !slowCooldown && slowUnlocked) {
     slowActive = true;
     slowStartTime = millis();
   }
@@ -199,12 +202,11 @@ function gameOver() {
   gameOverFlag = true;
   playerColor = [255, 255, 255];
   slowUnlocked = false;
-    if ((score > highScore) && highScoreCount) {
+  if ((score > highScore) && highScoreCount) {
     highScore = score;
   }
   drawGameOverText();
 }
-
 
 function drawGameOverText() {
   fill(0, 0, 0, 100);
