@@ -1,4 +1,4 @@
-// RELEASE - 1.1.2
+// RELEASE - 1.1.3
 var playerX = 200;
 var playerY = 350;
 var playerSpeed = 5;
@@ -216,7 +216,8 @@ function drawGameOverText() {
   text("Game Over", width / 2, height / 2);
   textSize(18);
   text("Final Score: " + score, width / 2, height / 2 + 40);
-  text("Click or press any key to reset", width / 2, height / 2 + 70);
+  text("High Score: " + highScore, width / 2, height / 2 + 70);
+  text("Click or press any key to reset", width / 2, height / 2 + 100);
 }
 
 function mousePressed() {
