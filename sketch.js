@@ -1,12 +1,13 @@
-// RELEASE - 1.1.3
+// RELEASE - 1.2.1
+
 var playerX = 200;
 var playerY = 350;
-var playerSpeed = 5;
+var playerSpeed = 2.5;
 var playerSize = 5;
 var score = 0;
 var lastMilestone = -1;
 var obstacles = [];
-var obstacleSpeed = 2.5;
+var obstacleSpeed = 3;
 var gameOverFlag = false;
 var playerColor = [0, 0, 255];
 var gameRunning = true;
@@ -24,8 +25,9 @@ var slowUnlockTime = null;
 var highScore = 0;
 var isPaused = false;
 var highScoreCount = true;
-
+var direction = 0;
 var waitingToStart = true;
+var clickHistory = [];
 
 function startGame() {
   waitingToStart = false;
@@ -62,6 +64,7 @@ function draw() {
   if (score >= 10 && score % 10 === 0 && obstacleSpeed <= 8) {
     obstacleSpeed *= 1.005;
   }
+  
 
   if (score % 500 === 0 && score !== 0 && score !== lastMilestone) {
     obstacleSpeed *= 0.25;
@@ -91,10 +94,13 @@ function draw() {
     isInvincible = false;
   }
 
-  var currentSpeed = keyIsDown(16) ? playerSpeed / 2 : playerSpeed;
+
+  var dynamicBaseSpeed = playerSpeed + (floor(score / 25) * 0.25);
+  
+  var currentSpeed = keyIsDown(16) ? dynamicBaseSpeed * 2 : dynamicBaseSpeed;
   var currentObstacleSpeed = obstacleSpeed;
 
-  if (keyIsDown(38) || keyIsDown(87)) {
+  if (keyIsDown(16)) {
     currentObstacleSpeed *= 3;
   }
 
@@ -111,18 +117,17 @@ function draw() {
     slowCooldown = false;
   }
 
-  if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) {
-    playerX -= currentSpeed;
-  }
-  if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) {
-    playerX += currentSpeed;
+  playerX += (direction * currentSpeed);
+
+  if (playerX > width) {
+    playerX = 0;
+  } else if (playerX < 0) {
+    playerX = width;
   }
 
-  if (playerX > width || playerX < 0) {
-    gameOver();
-  }
+  var spawnInterval = max(8, 24 - floor(score / 10));
 
-  if (frameCount % 10 === 0) {
+  if (frameCount % spawnInterval === 0) {
     spawnObstacle();
   }
 
@@ -162,11 +167,25 @@ function draw() {
   fill(isInvincible ? [255, 255, 0] : playerColor);
   ellipse(playerX, playerY, playerSize, playerSize);
 
-  if (keyIsDown(38) || keyIsDown(87)) {
+  if (keyIsDown(16)) {
     fill(0, 0, 0);
     text("TURBO MODE!", width / 2, 70);
   }
 
+  var currentTime = millis();
+
+  while (clickHistory.length > 0 && currentTime - clickHistory[0] > 1000) {
+    clickHistory.shift(); 
+  }
+
+  var currentCPS = clickHistory.length;
+
+  push(); // Isolates text settings so it doesn't mess up your other text
+  textAlign(LEFT, TOP);
+  fill(0);
+  textSize(16);
+  text("CPS: " + currentCPS, 15, 15);
+  pop();
   if (score >= 100 && slowUnlockTime === null) {
     slowUnlockTime = millis();
     slowUnlocked = true;
@@ -177,10 +196,6 @@ function draw() {
     text("Slowmode unlocked:\nPress ↓ or S for 5s slow (25s cooldown)", width / 2, playerY + 30);
   }
 
-  if ((keyCode === 40 || keyCode === 83) && !slowActive && !slowCooldown && slowUnlocked) {
-    slowActive = true;
-    slowStartTime = millis();
-  }
 }
 
 function spawnObstacle() {
@@ -222,9 +237,32 @@ function drawGameOverText() {
 
 function mousePressed() {
   if (gameOverFlag) resetGame();
+  if (gameRunning && !isPaused && !waitingToStart) {
+    clickHistory.push(millis());
+    if (direction === 0) {
+      direction = random() < 0.5 ? -1 : 1;
+    } else {
+      direction *= -1;
+    }
+  }
+
 }
 
 function keyPressed() {
+  if (keyCode === 32) {
+    clickHistory.push(millis());
+    if (direction === 0) {
+      direction = random() < 0.5 ? -1 : 1;
+    } else {
+      direction *= -1; 
+    }
+  }
+
+  if ((keyCode === 40 || keyCode === 83) && !slowActive && !slowCooldown && slowUnlocked) {
+    slowActive = true;
+    slowStartTime = millis();
+  }
+
   if (keyCode === 80 || keyCode === 27) {
     isPaused = !isPaused;
     return;
@@ -236,13 +274,14 @@ function keyPressed() {
   }
 }
 
+
 function resetGame() {
   playerX = 200;
   playerY = 350;
-  playerSpeed = 5;
+  playerSpeed = 2.5;
   score = 0;
   obstacles = [];
-  obstacleSpeed = 2.5;
+  obstacleSpeed = 3;
   gameOverFlag = false;
   playerColor = [0, 0, 255];
   gameRunning = true;
@@ -254,5 +293,6 @@ function resetGame() {
   cooldownStartTime = 0;
   slowUnlockTime = null;
   highScoreCount = true;
+  direction = 0;
   loop();
 }
